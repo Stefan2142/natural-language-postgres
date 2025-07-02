@@ -8,52 +8,40 @@ export const SuggestedQueries = ({
 }) => {
   const suggestionQueries = [
     {
-      desktop: "Compare count of unicorns in SF and NY over time",
-      mobile: "SF vs NY",
+      desktop: "Find the strongest candidates (high positive, low negative score)",
+      mobile: "Strongest",
     },
     {
-      desktop: "Compare unicorn valuations in the US vs China over time",
-      mobile: "US vs China",
+      desktop: "Show all senior-level candidates",
+      mobile: "Seniors",
     },
     {
-      desktop: "Countries with highest unicorn density",
-      mobile: "Top countries",
+      desktop: "Who is in the final interview stage?",
+      mobile: "Finalists",
     },
     {
-      desktop:
-        "Show the number of unicorns founded each year over the past two decades",
-      mobile: "Yearly count",
+      desktop: "Count candidates in each hiring stage",
+      mobile: "Pipeline Count",
     },
     {
-      desktop: "Display the cumulative total valuation of unicorns over time",
-      mobile: "Total value",
+      desktop: "Find candidates with leadership experience",
+      mobile: "Leaders",
     },
     {
-      desktop:
-        "Compare the yearly funding amounts for fintech vs healthtech unicorns",
-      mobile: "Fintech vs health",
+      desktop: "Show candidates from Mexico City",
+      mobile: "From Mexico City",
     },
     {
-      desktop: "Which cities have with most SaaS unicorns",
-      mobile: "SaaS cities",
+      desktop: "Who has a negative score of 6 or higher?",
+      mobile: "Red Flags",
     },
     {
-      desktop: "Show the countries with highest unicorn density",
-      mobile: "Dense nations",
+      desktop: "How many applicants for the 'Senior Recruiter' role?",
+      mobile: "Applicants/Role",
     },
     {
-      desktop:
-        "Show the number of unicorns (grouped by year) over the past decade",
-      mobile: "Decade trend",
-    },
-    {
-      desktop:
-        "Compare the average valuation of AI companies vs. biotech companies",
-      mobile: "AI vs biotech",
-    },
-    {
-      desktop: "Investors with the most unicorns",
-      mobile: "Top investors",
+      desktop: "Find candidates who have worked at EY",
+      mobile: "From EY",
     },
   ];
 

@@ -1,0 +1,279 @@
+You got the repo, i have supabase with the existing data
+
+Here is the connection thing>
+
+host:
+
+aws-0-eu-west-3.pooler.supabase.com
+
+port:
+
+5432
+
+database:
+
+postgres
+
+user:
+
+postgres.kqfophuzvjnkxgarbdkv
+
+pool_mode:
+
+session
+
+password:\
+
+3zxFenra%\
+
+Also here is the ddl>
+
+create table public.resume_scores (
+
+id serial not null,
+
+candidate_id character varying(255) not null,
+
+candidate_name character varying(255) not null,
+
+role_title character varying(255) not null,
+
+job_shortcode character varying(255) not null,
+
+profile_about text null,
+
+contact_info text null,
+
+education text null,
+
+achievements_certificates text null,
+
+skills text null,
+
+metadata_account_subdomain character varying(255) null,
+
+metadata_account_name character varying(255) null,
+
+metadata_stage character varying(100) null,
+
+metadata_disqualified boolean null,
+
+metadata_phone character varying(50) null,
+
+metadata_email character varying(255) null,
+
+metadata_created_at timestamp without time zone null,
+
+metadata_updated_at timestamp without time zone null,
+
+metadata_cover_letter text null,
+
+metadata_education_entries jsonb null,
+
+metadata_experience_entries jsonb null,
+
+metadata_skills_list jsonb null,
+
+metadata_answers jsonb null,
+
+metadata_location jsonb null,
+
+fit_score_positive integer null,
+
+fit_score_negative integer null,
+
+rationale text null,
+
+created_at timestamp without time zone null default CURRENT_TIMESTAMP,
+
+updated_at timestamp without time zone null default CURRENT_TIMESTAMP,
+
+constraint resume_scores_pkey primary key (id),
+
+constraint resume_scores_fit_score_negative_check check (
+
+(
+
+(fit_score_negative >= 1)
+
+and (fit_score_negative <= 10)
+
+)
+
+),
+
+constraint resume_scores_fit_score_positive_check check (
+
+(
+
+(fit_score_positive >= 1)
+
+and (fit_score_positive <= 10)
+
+)
+
+)
+
+) TABLESPACE pg_default;
+
+create index IF not exists idx_resume_scores_candidate_id on public.resume_scores using btree (candidate_id) TABLESPACE pg_default;
+
+create index IF not exists idx_resume_scores_job_shortcode on public.resume_scores using btree (job_shortcode) TABLESPACE pg_default;
+
+create index IF not exists idx_resume_scores_fit_scores on public.resume_scores using btree (fit_score_positive, fit_score_negative) TABLESPACE pg_default;
+
+create index IF not exists idx_resume_scores_created_at on public.resume_scores using btree (created_at) TABLESPACE pg_default;
+
+create trigger update_resume_scores_updated_at BEFORE
+
+update on resume_scores for EACH row
+
+execute FUNCTION update_updated_at_column ();
+
+Given this, in the example from the github, we dont need to seed the database, we already have it. Provide a plan on what needs to be changed in that repo so that we can use the already generated supa base .
+
+I know that system prompts need to be changed as well, but thats another topic
+
+RESPONSE>
+Of course\! Here's a plan on how to adapt the provided GitHub repository to use your existing Supabase database with the `resume_scores` table.
+
+---
+
+## 1\. Disable Database Seeding
+
+First, you'll want to disable the existing database seeding process, which is set up for a "unicorns" dataset.
+
+- **Delete the seed file**: Remove the file `lib/seed.ts`.
+
+- **Update `package.json`**: In the `package.json` file, remove the `seed` script from the `scripts` section.
+
+  ```json
+  "scripts": {
+    "dev": "next dev --turbo",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  ```
+
+\<br\>
+
+---
+
+## 2\. Update Database Connection & `.gitignore`
+
+You'll need to configure the application to connect to your Supabase database.
+
+- **Update `.env` file**: Modify your `.env` file to include the connection details for your Supabase database as outlined in the `README.md`. Based on the credentials you provided, your `POSTGRES_URL` would look something like this:
+
+  ```
+  POSTGRES_URL="postgresql://postgres.kqfophuzvjnkxgarbdkv:3zxFenra%@aws-0-eu-west-3.pooler.supabase.com:5432/postgres"
+  ```
+
+- **Update `.gitignore`**: Remove the `unicorns.csv` from the `.gitignore` file.
+
+\<br\>
+
+---
+
+## 3\. Align with the New Database Schema
+
+The core of the changes will be updating the application to use the `resume_scores` table instead of the `unicorns` table.
+
+- **Update `app/actions.ts`**:
+
+  - In the `generateQuery` function, replace the existing `unicorns` table schema in the system prompt with your `resume_scores` table schema.
+  - In the `runGenerateSQLQuery` function, change the error handling to check for the existence of the `resume_scores` table instead of the `unicorns` table.
+  - In the `explainQuery` function, update the system prompt to reference the `resume_scores` table schema.
+
+  Here's an example of the updated `generateQuery` system prompt:
+
+  ```javascript
+  const result = await generateObject({
+    model: openai('gpt-4o'),
+    system: `You are a SQL (postgres) and data visualization expert. Your job is to help the user write a SQL query to retrieve the data they need. The table schema is as follows:
+  
+      resume_scores (
+        id serial not null,
+        candidate_id character varying(255) not null,
+        candidate_name character varying(255) not null,
+        role_title character varying(255) not null,
+        job_shortcode character varying(255) not null,
+        profile_about text null,
+        contact_info text null,
+        education text null,
+        achievements_certificates text null,
+        skills text null,
+        metadata_account_subdomain character varying(255) null,
+        metadata_account_name character varying(255) null,
+        metadata_stage character varying(100) null,
+        metadata_disqualified boolean null,
+        metadata_phone character varying(50) null,
+        metadata_email character varying(255) null,
+        metadata_created_at timestamp without time zone null,
+        metadata_updated_at timestamp without time zone null,
+        metadata_cover_letter text null,
+        metadata_education_entries jsonb null,
+        metadata_experience_entries jsonb null,
+      metadata_skills_list jsonb null,
+        metadata_answers jsonb null,
+        metadata_location jsonb null,
+        fit_score_positive integer null,
+        fit_score_negative integer null,
+        rationale text null,
+        created_at timestamp without time zone null default CURRENT_TIMESTAMP,
+        updated_at timestamp without time zone null default CURRENT_TIMESTAMP
+  );
+  
+  Only retrieval queries are allowed.
+  
+  For things like role_title, candidate_name and other string fields, use the ILIKE operator and convert both the search term and the field to lowercase using LOWER() function. For example: LOWER(role_title) ILIKE LOWER('%search_term%').
+  
+  EVERY QUERY SHOULD RETURN QUANTITATIVE DATA THAT CAN BE PLOTTED ON A CHART! There should always be at least two columns. If the user asks for a single column, return the column and the count of the column.
+  `,
+    prompt: `Generate the query necessary to retrieve the data the user wants: ${input}`,
+    schema: z.object({
+      query: z.string(),
+    }),
+  });
+  ```
+
+- **Update `lib/types.ts`**: Replace the `Unicorn` type with a `ResumeScore` type that matches your new schema.
+
+- **Update `components/suggested-queries.tsx`**: Modify the `suggestionQueries` array to provide relevant example queries for your `resume_scores` data.
+
+  Here are a few examples to get you started:
+
+  ```javascript
+  const suggestionQueries = [
+    {
+      desktop: 'Show the top 10 candidates with the highest positive fit score',
+      mobile: 'Top candidates',
+    },
+    {
+      desktop:
+        "Compare the average positive and negative fit scores for the 'Software Engineer' role",
+      mobile: 'SE fit scores',
+    },
+    {
+      desktop: 'Count the number of candidates per role title',
+      mobile: 'Candidates per role',
+    },
+  ];
+  ```
+
+\<br\>
+
+---
+
+## 4\. Update UI Components and Documentation
+
+Finally, you'll want to adjust the UI and documentation to reflect the new data source.
+
+- **Update `components/results.tsx`**: In the `formatCellValue` function, remove the specific formatting for "valuation" and "rate" and add any necessary formatting for your `resume_scores` columns (e.g., formatting scores or dates).
+
+- **Update `README.md`**: Update the `README.md` to remove references to the "unicorns" dataset and update the setup instructions. Specifically, remove the step about downloading the `unicorns.csv` file.
+
+- **Update `components/project-info.tsx`**: Change the project description to reflect that the application is now for querying candidate resume scores.
+
+By following these steps, you should be able to successfully adapt the application to work

@@ -1,14 +1,35 @@
 import { z } from "zod";
 
-export type Unicorn = {
+export type ResumeScore = {
   id: number;
-  company: string;
-  valuation: number;
-  date_joined: Date | null;
-  country: string;
-  city: string;
-  industry: string;
-  select_investors: string;
+  candidate_id: string;
+  candidate_name: string;
+  role_title: string;
+  job_shortcode: string;
+  profile_about: string | null;
+  contact_info: string | null;
+  education: string | null;
+  achievements_certificates: string | null;
+  skills: string | null;
+  metadata_account_subdomain: string | null;
+  metadata_account_name: string | null;
+  metadata_stage: string | null;
+  metadata_disqualified: boolean | null;
+  metadata_phone: string | null;
+  metadata_email: string | null;
+  metadata_created_at: Date | null;
+  metadata_updated_at: Date | null;
+  metadata_cover_letter: string | null;
+  metadata_education_entries: any | null;
+  metadata_experience_entries: any | null;
+  metadata_skills_list: any | null;
+  metadata_answers: any | null;
+  metadata_location: any | null;
+  fit_score_positive: number | null;
+  fit_score_negative: number | null;
+  rationale: string | null;
+  created_at: Date | null;
+  updated_at: Date | null;
 };
 
 export type Result = Record<string, string | number>;
@@ -21,32 +42,3 @@ export const explanationsSchema = z.array(explanationSchema);
 
 export type QueryExplanation = z.infer<typeof explanationSchema>;
 
-// Define the schema for chart configuration
-export const configSchema = z
-  .object({
-    description: z
-      .string()
-      .describe(
-        "Describe the chart. What is it showing? What is interesting about the way the data is displayed?",
-      ),
-    takeaway: z.string().describe("What is the main takeaway from the chart?"),
-    type: z.enum(["bar", "line", "area", "pie"]).describe("Type of chart"),
-    title: z.string(),
-    xKey: z.string().describe("Key for x-axis or category"),
-    yKeys: z.array(z.string()).describe("Key(s) for y-axis values this is typically the quantitative column"),
-    multipleLines: z.boolean().describe("For line charts only: whether the chart is comparing groups of data.").optional(),
-    measurementColumn: z.string().describe("For line charts only: key for quantitative y-axis column to measure against (eg. values, counts etc.)").optional(),
-    lineCategories: z.array(z.string()).describe("For line charts only: Categories used to compare different lines or data series. Each category represents a distinct line in the chart.").optional(),
-    colors: z
-      .record(
-        z.string().describe("Any of the yKeys"),
-        z.string().describe("Color value in CSS format (e.g., hex, rgb, hsl)"),
-      )
-      .describe("Mapping of data keys to color values for chart elements")
-      .optional(),
-    legend: z.boolean().describe("Whether to show legend"),
-  })
-  .describe("Chart configuration object");
-
-
-export type Config = z.infer<typeof configSchema>;

@@ -3,11 +3,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  generateChartConfig,
   generateQuery,
   runGenerateSQLQuery,
 } from "./actions";
-import { Config, Result } from "@/lib/types";
+import { Result } from "@/lib/types";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { ProjectInfo } from "@/components/project-info";
@@ -25,7 +24,6 @@ export default function Page() {
   const [activeQuery, setActiveQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(1);
-  const [chartConfig, setChartConfig] = useState<Config | null>(null);
 
   const handleSubmit = async (suggestion?: string) => {
     const question = suggestion ?? inputValue;
@@ -51,8 +49,6 @@ export default function Page() {
       setResults(companies);
       setColumns(columns);
       setLoading(false);
-      const generation = await generateChartConfig(companies, question);
-      setChartConfig(generation.config);
     } catch (e) {
       toast.error("An error occurred. Please try again.");
       setLoading(false);
@@ -72,7 +68,6 @@ export default function Page() {
     setActiveQuery("");
     setResults([]);
     setColumns([]);
-    setChartConfig(null);
   };
 
   const handleClear = () => {
@@ -83,7 +78,7 @@ export default function Page() {
 
   return (
     <div className="bg-neutral-50 dark:bg-neutral-900 flex items-start justify-center p-0 sm:p-8">
-      <div className="w-full max-w-4xl min-h-dvh sm:min-h-0 flex flex-col ">
+      <div className="w-full max-w-7xl min-h-dvh sm:min-h-0 flex flex-col ">
         <motion.div
           className="bg-card rounded-xl sm:border sm:border-border flex-grow flex flex-col"
           initial={{ opacity: 0 }}
@@ -125,7 +120,7 @@ export default function Page() {
                         />
                       )}
                       {loading ? (
-                        <div className="h-full absolute bg-background/50 w-full flex flex-col items-center justify-center space-y-4">
+                        <div className="flex-grow flex flex-col items-center justify-center space-y-4 min-h-[300px]">
                           <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
                           <p className="text-foreground">
                             {loadingStep === 1
@@ -142,7 +137,6 @@ export default function Page() {
                       ) : (
                         <Results
                           results={results}
-                          chartConfig={chartConfig}
                           columns={columns}
                         />
                       )}

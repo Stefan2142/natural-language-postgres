@@ -1,9 +1,9 @@
-# Natural Language PostgreSQL
+# Resume Scores Database Query Interface
 
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fnatural-language-postgres&env=OPENAI_API_KEY&envDescription=Learn%20more%20about%20how%20to%20get%20the%20API%20Keys%20for%20the%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fnatural-language-postgres%2Fblob%2Fmain%2F.env.example&demo-title=Natural%20Language%20Postgres&demo-description=Query%20PostgreSQL%20database%20using%20natural%20language%20and%20visualize%20results%20with%20Next.js%20and%20AI%20SDK.&demo-url=https%3A%2F%2Fnatural-language-postgres.vercel.app&stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D)
 
-This project is a Next.js application that allows users to query a PostgreSQL database using natural language and visualize the results. It's powered by the AI SDK by Vercel and uses OpenAI's GPT-4o model to translate natural language queries into SQL.
+This project is a Next.js application that allows users to query a resume scores database using natural language and visualize the results. It's powered by the AI SDK by Vercel and uses OpenAI's GPT-4o model to translate natural language queries into SQL.
 
 ## Features
 
@@ -25,7 +25,7 @@ This project is a Next.js application that allows users to query a PostgreSQL da
 
 ## How It Works
 
-1. The user enters a natural language query about unicorn companies.
+1. The user enters a natural language query about candidate resume scores.
 2. The application uses GPT-4 to generate an appropriate SQL query.
 3. The SQL query is executed against the PostgreSQL database.
 4. Results are displayed in a table format.
@@ -36,17 +36,17 @@ This project is a Next.js application that allows users to query a PostgreSQL da
 
 ## Data
 
-The database contains information about unicorn companies, including:
+The database contains information about candidate resume scores, including:
 
-- Company name
-- Valuation
-- Date joined (unicorn status)
-- Country
-- City
-- Industry
-- Select investors
-
-This data is based on CB Insights' list of unicorn companies.
+- Candidate ID and name
+- Role title and job shortcode
+- Profile information (about, contact, education, skills)
+- Fit scores (positive and negative, 1-10 scale)
+- Account metadata (subdomain, stage, disqualification status)
+- Contact information (phone, email)
+- Structured data (education entries, experience entries, skills list, answers, location)
+- Timestamps (created_at, updated_at)
+- Rationale for scoring decisions
 
 ## Getting Started
 
@@ -64,30 +64,16 @@ To get the project up and running, follow these steps:
    cp .env.example .env
    ```
 
-3. Add your OpenAI API key and PostgreSQL connection string to the `.env` file:
+3. Add your OpenAI API key and PostgreSQL connection string to the `.env.local` file:
 
    ```
    OPENAI_API_KEY=your_api_key_here
-   POSTGRES_URL="..."
-   POSTGRES_PRISMA_URL="..."
-   POSTGRES_URL_NO_SSL="..."
-   POSTGRES_URL_NON_POOLING="..."
-   POSTGRES_USER="..."
-   POSTGRES_HOST="..."
-   POSTGRES_PASSWORD="..."
-   POSTGRES_DATABASE="..."
-   ```
-4. Download the dataset:
-  - Go to https://www.cbinsights.com/research-unicorn-companies
-  - Download the unicorn companies dataset
-  - Save the file as `unicorns.csv` in the root of your project
-
-5. Seed the database:
-   ```bash
-   pnpm run seed
+   POSTGRES_URL="postgresql://your_user:your_password@your_host:port/your_database"
    ```
 
-6. Start the development server:
+4. Ensure your Supabase database has the `resume_scores` table with the required schema.
+
+5. Start the development server:
    ```bash
    pnpm run dev
    ```

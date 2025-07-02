@@ -1,5 +1,4 @@
 import { Info } from "lucide-react";
-import { DeployButton } from "./deploy-button";
 import { Alert, AlertDescription } from "./ui/alert";
 import Link from "next/link";
 
@@ -18,19 +17,8 @@ export const ProjectInfo = () => {
             AI SDK
           </Link>{" "}
           to allow you to query a PostgreSQL database with natural language. The
-          dataset is CB Insights&apos; list of all unicorn companies. Learn more
-          at{" "}
-          <Link
-            href="https://www.cbinsights.com/research-unicorn-companies"
-            target="_blank"
-            className="text-primary hover:text-primary/90 underline"
-          >
-            CB Insights
-          </Link>
-          .
-          <div className="mt-4 sm:hidden">
-            <DeployButton />
-          </div>
+          database contains candidate resume scores with fit assessments, role
+          information, and detailed candidate metadata.
         </AlertDescription>
       </Alert>
     </div>
