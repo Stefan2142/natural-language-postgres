@@ -147,6 +147,22 @@ export const runGenerateSQLQuery = async (query: string) => {
   return data.rows as Result[];
 };
 
+export const getCandidateByName = async (candidateName: string) => {
+  "use server";
+  
+  const query = `SELECT * FROM resume_scores WHERE candidate_name = $1 LIMIT 1`;
+  
+  let data: any;
+  try {
+    data = await dbQuery(query, [candidateName]);
+  } catch (e: any) {
+    console.error("Error fetching candidate:", e);
+    throw new Error("Failed to fetch candidate details");
+  }
+
+  return data.rows[0] as Result | null;
+};
+
 export const explainQuery = async (input: string, sqlQuery: string) => {
   "use server";
   try {

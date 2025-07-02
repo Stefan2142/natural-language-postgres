@@ -1,7 +1,8 @@
 import { Result, ResumeScore } from "@/lib/types";
 import { CSVDownloadButton } from "./csv-download-button";
+import { CandidateDetailModal } from "./candidate-detail-modal";
 import { useState, useMemo } from "react";
-import { ChevronUp, ChevronDown, Filter } from "lucide-react";
+import { ChevronUp, ChevronDown, Filter, Eye } from "lucide-react";
 import {
   TableHeader,
   TableRow,
@@ -32,6 +33,10 @@ export const Results = ({
   const [sortDirection, setSortDirection] = useState<SortDirection>(null);
   const [filters, setFilters] = useState<Record<string, ColumnFilter>>({});
   const [showFilterFor, setShowFilterFor] = useState<string | null>(null);
+  const [selectedCandidate, setSelectedCandidate] = useState<Result | null>(null);
+
+  // Check if this table contains candidate data
+  const hasCandidateData = columns.includes('candidate_name');
 
   // Filter and sort data
   const processedData = useMemo(() => {
@@ -171,6 +176,13 @@ export const Results = ({
         <Table className="min-w-full divide-y divide-border">
           <TableHeader className="bg-secondary sticky top-0 shadow-sm">
             <TableRow>
+              {hasCandidateData && (
+                <TableHead className="px-6 py-3 w-16">
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                    View
+                  </span>
+                </TableHead>
+              )}
               {columns.map((column, index) => (
                 <TableHead
                   key={index}
@@ -255,6 +267,18 @@ export const Results = ({
           <TableBody className="bg-card divide-y divide-border">
             {processedData.map((candidate, index) => (
               <TableRow key={index} className="hover:bg-muted">
+                {hasCandidateData && (
+                  <TableCell className="px-6 py-4 w-16">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-muted"
+                      onClick={() => setSelectedCandidate(candidate)}
+                    >
+                      <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                    </Button>
+                  </TableCell>
+                )}
                 {columns.map((column, cellIndex) => (
                   <TableCell
                     key={cellIndex}
@@ -277,6 +301,12 @@ export const Results = ({
           </TableBody>
         </Table>
       </div>
+      
+      {/* Candidate Detail Modal */}
+      <CandidateDetailModal 
+        candidate={selectedCandidate} 
+        onClose={() => setSelectedCandidate(null)} 
+      />
     </div>
   );
 };
