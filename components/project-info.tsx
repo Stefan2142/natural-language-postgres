@@ -8,17 +8,21 @@ export const ProjectInfo = () => {
       <Alert className="bg-muted text-muted-foreground border-0">
         <Info className="h-4 w-4 text-primary" />
         <AlertDescription>
-          This application uses the{" "}
-          <Link
-            target="_blank"
-            className="text-primary hover:text-primary/90 underline"
-            href="https://sdk.vercel.ai"
-          >
-            AI SDK
-          </Link>{" "}
-          to allow you to query a PostgreSQL database with natural language. The
-          database contains candidate resume scores with fit assessments, role
-          information, and detailed candidate metadata.
+          - Please note that this is a demo application.
+          <br />
+          - "Disqualified" column is not given to LLM for obvious reasons.
+          <br />
+          - Returning data always defaults to default set of columns. If you want to see all columns, include in prompt "show all columns".
+          <br />
+          <div className="text-center">
+            Made with ❤️ by <Link
+              target="_blank"
+              className="text-primary hover:text-primary/90 underline"
+              href="https://tryheadquarters.com/"
+            >
+              Headquarters Labs
+            </Link>
+          </div>
         </AlertDescription>
       </Alert>
     </div>

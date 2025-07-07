@@ -66,7 +66,12 @@ CREATE TABLE resume_scores (
     *   **\`metadata_skills_list\`:** To check if a specific skill exists, query the \`name\` key within the array. Example for 'Recruiting': \`WHERE metadata_skills_list @> '[{"name": "Recruiting"}]'::jsonb\`
     *   **\`metadata_experience_entries\`:** Query keys like \`title\` and \`company\`. Example for 'Senior Recruiter' title: \`WHERE LOWER(metadata_experience_entries::text) ILIKE LOWER('%"title":%senior recruiter%')\`
     *   **\`metadata_answers\`**: Query against question text and the answer. Example for salary <= 3000: \`SELECT * FROM resume_scores WHERE EXISTS (SELECT 1 FROM jsonb_array_elements(metadata_answers) as answer WHERE (LOWER(answer->'question'->>'body') ILIKE LOWER('%salary expectations%')) AND ((answer->'answer'->>'number')::numeric <= 3000))\`
-    *   **\`metadata_location\`**: Use the \`->>\` operator to extract the text value. Example for "Mexico City": \`WHERE LOWER(metadata_location->>'city') ILIKE LOWER('Mexico City')\`
+    *   **\`metadata_location\`**: This column is a JSON object containing structured location data. Use the \`->>\` operator to extract the text value.
+        *   **Structure:** It is a single object with keys: \`city\`, \`region\`, \`country\`, \`country_code\`, and \`location_str\`.
+        *   **Data Quality & Examples:** Keys can be fully populated or entirely \`null\`.
+            *   *Populated Example:* \`{"city": "Ciudad Juarez", "region": "Chihuahua", "country": "Mexico", "country_code": "MX", "location_str": "Ciudad Juarez, Mexico"}\`
+            *   *Empty/Null Example:* \`{"city": null, "region": null, "country": null, "country_code": null, "location_str": null}\`
+        *   **Querying Strategy:** For a broad request like "candidates in Mexico," it is most robust to check both the \`country\` and \`location_str\` keys: \`WHERE LOWER(metadata_location->>'country') ILIKE LOWER('Mexico') OR LOWER(metadata_location->>'location_str') ILIKE LOWER('%Mexico%')\`
 
 6.  **Handling Hiring Stages (\`metadata_stage\`):** This column indicates the candidate's current position in the hiring pipeline. The values follow a specific sequence:
     1.  \`Applied\` (Earliest stage)
@@ -186,7 +191,6 @@ export const explainQuery = async (input: string, sqlQuery: string) => {
       metadata_account_subdomain character varying(255) null,
       metadata_account_name character varying(255) null,
       metadata_stage character varying(100) null,
-      metadata_disqualified boolean null,
       metadata_phone character varying(50) null,
       metadata_email character varying(255) null,
       metadata_created_at timestamp without time zone null,

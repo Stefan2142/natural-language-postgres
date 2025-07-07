@@ -129,6 +129,132 @@ export const Results = ({
       .join(" ");
   };
 
+  const getColumnWidth = (column: string) => {
+    const col = column.toLowerCase();
+    
+    // Short columns (fixed narrow width)
+    if (col === "id") {
+      return "w-20";
+    }
+    
+    // Medium-wide columns (wider to accommodate long headers)
+    if (col.includes("fit_score") || col.includes("metadata_account")) {
+      return "w-56";
+    }
+    
+    // Medium columns (moderate width)
+    if (col.includes("candidate_id") || col.includes("job_shortcode") || 
+        col.includes("candidate_name") || col.includes("role_title") || 
+        col.includes("metadata_email") || col.includes("metadata_stage") ||
+        col.includes("created_at") || col.includes("updated_at") ||
+        col === "metadata_disqualified" || col.includes("metadata_phone")) {
+      return "w-48";
+    }
+    
+    // Long text columns (wide with wrapping)
+    if (col.includes("profile_about") || col.includes("contact_info") || 
+        col.includes("education") || col.includes("achievements") || 
+        col.includes("skills") || col.includes("rationale") || 
+        col.includes("cover_letter") || col.includes("entries") || 
+        col.includes("answers") || col.includes("location")) {
+      return "w-80";
+    }
+    
+    // Default medium width
+    return "w-48";
+  };
+
+  const formatJsonbValue = (value: any): string => {
+    if (value === null || value === undefined) {
+      return "";
+    }
+    
+    const formatNestedValue = (val: any): string => {
+      if (val === null || val === undefined) {
+        return "null";
+      }
+      
+      if (typeof val === "object" && val !== null) {
+        if (Array.isArray(val)) {
+          if (val.length === 0) return "[]";
+          const items = val.map(item => formatNestedValue(item));
+          return `[${items.join(", ")}]`;
+        } else {
+          const keys = Object.keys(val);
+          if (keys.length === 0) return "{}";
+          const pairs = keys.map(key => `${key}: ${formatNestedValue(val[key])}`);
+          return `{${pairs.join(", ")}}`;
+        }
+      }
+      
+      return String(val);
+    };
+    
+    try {
+      // If it's already a string, try to parse it as JSON
+      if (typeof value === "string") {
+        try {
+          value = JSON.parse(value);
+        } catch {
+          return value; // Return as-is if not valid JSON
+        }
+      }
+      
+      // Handle arrays
+      if (Array.isArray(value)) {
+        if (value.length === 0) {
+          return "[]";
+        }
+        
+        // Show count and preview of first few items
+        const preview = value.slice(0, 2).map(item => {
+          if (typeof item === "object" && item !== null) {
+            // For objects, show key-value pairs with proper nested formatting
+            const keys = Object.keys(item);
+            if (keys.length > 0) {
+              const firstKey = keys[0];
+              const firstValue = formatNestedValue(item[firstKey]);
+              const truncated = firstValue.length > 30 ? firstValue.substring(0, 30) + "..." : firstValue;
+              return `${firstKey}: ${truncated}`;
+            }
+            return "{}";
+          }
+          return String(item);
+        }).join(", ");
+        
+        return value.length > 2 
+          ? `[${preview}... +${value.length - 2} more]`
+          : `[${preview}]`;
+      }
+      
+      // Handle objects
+      if (typeof value === "object" && value !== null) {
+        const keys = Object.keys(value);
+        if (keys.length === 0) {
+          return "{}";
+        }
+        
+        // Show first few key-value pairs with proper nested formatting
+        const preview = keys.slice(0, 3).map(key => {
+          const val = formatNestedValue(value[key]);
+          const truncated = val.length > 30 ? val.substring(0, 30) + "..." : val;
+          return `${key}: ${truncated}`;
+        }).join(", ");
+        
+        return keys.length > 3
+          ? `{${preview}... +${keys.length - 3} more}`
+          : `{${preview}}`;
+      }
+      
+      // For primitive values
+      return String(value);
+      
+    } catch (error) {
+      // Fallback for any parsing errors
+      return String(value);
+    }
+  };
+
   const formatCellValue = (column: string, value: any) => {
     if (column.toLowerCase().includes("fit_score")) {
       const parsedValue = parseFloat(value);
@@ -153,15 +279,15 @@ export const Results = ({
         return new Date(value).toLocaleDateString();
       }
     }
-    // Truncate long text fields for better display
-    if (column.toLowerCase().includes("rationale") || column.toLowerCase().includes("education") || column.toLowerCase().includes("contact_info")) {
-      const text = String(value || "");
-      if (text.length > 100) {
-        return text.substring(0, 100) + "...";
-      }
-      return text;
+    
+    // Handle JSONB columns
+    const col = column.toLowerCase();
+    if (col.includes("entries") || col.includes("answers") || col.includes("location") || col.includes("skills_list")) {
+      return formatJsonbValue(value);
     }
-    return String(value);
+    
+    // Default string formatting
+    return String(value || "");
   };
 
   return (
@@ -173,7 +299,7 @@ export const Results = ({
         <CSVDownloadButton data={processedData} />
       </div>
       <div className="overflow-auto max-h-[700px] border rounded-lg">
-        <Table className="min-w-full divide-y divide-border">
+        <Table className="min-w-full divide-y divide-border table-fixed">
           <TableHeader className="bg-secondary sticky top-0 shadow-sm">
             <TableRow>
               {hasCandidateData && (
@@ -186,7 +312,7 @@ export const Results = ({
               {columns.map((column, index) => (
                 <TableHead
                   key={index}
-                  className="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider"
+                  className={`px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider ${getColumnWidth(column)}`}
                 >
                   <div className="flex items-center gap-2">
                     <Button
@@ -279,23 +405,28 @@ export const Results = ({
                     </Button>
                   </TableCell>
                 )}
-                {columns.map((column, cellIndex) => (
-                  <TableCell
-                    key={cellIndex}
-                    className={`px-6 py-4 text-sm text-foreground ${
-                      column.toLowerCase().includes("rationale") || 
-                      column.toLowerCase().includes("education") || 
-                      column.toLowerCase().includes("contact_info")
-                        ? "max-w-xs"
-                        : "whitespace-nowrap"
-                    }`}
-                  >
-                    {formatCellValue(
-                      column,
-                      candidate[column as keyof ResumeScore],
-                    )}
-                  </TableCell>
-                ))}
+                {columns.map((column, cellIndex) => {
+                  const col = column.toLowerCase();
+                  const isLongTextColumn = col.includes("profile_about") || col.includes("contact_info") || 
+                    col.includes("education") || col.includes("achievements") || 
+                    col.includes("skills") || col.includes("rationale") || 
+                    col.includes("cover_letter") || col.includes("entries") || 
+                    col.includes("answers") || col.includes("location");
+                  
+                  return (
+                    <TableCell
+                      key={cellIndex}
+                      className={`px-6 py-4 text-sm text-foreground ${getColumnWidth(column)} ${
+                        isLongTextColumn ? "break-words" : "whitespace-nowrap"
+                      }`}
+                    >
+                      {formatCellValue(
+                        column,
+                        candidate[column as keyof ResumeScore],
+                      )}
+                    </TableCell>
+                  );
+                })}
               </TableRow>
             ))}
           </TableBody>
