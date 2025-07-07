@@ -1,5 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 import { useTheme } from "next-themes";
 
 export const Header = ({ handleClear }: { handleClear: () => void }) => {
@@ -7,12 +8,18 @@ export const Header = ({ handleClear }: { handleClear: () => void }) => {
 
   return (
     <div className="flex items-center justify-between mb-6">
-      <h1
-        className="text-2xl sm:text-3xl font-bold text-foreground flex items-center cursor-pointer"
-        onClick={() => handleClear()}
-      >
-        Natural Language PostgreSQL
-      </h1>
+      <div>
+        <h1
+          className="text-2xl sm:text-3xl font-bold text-foreground flex items-center cursor-pointer"
+          onClick={() => handleClear()}
+        >
+          Natural Language PostgreSQL - LLM powered queries on the resume database
+        </h1>
+        <Badge variant="secondary" className="mt-2">
+          Current role data in database -&gt; Senior recruiter
+        </Badge>
+      </div>
+
       <div className="flex items-center justify-center space-x-2">
         <Button
           variant="ghost"

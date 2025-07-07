@@ -10,9 +10,9 @@ export const ProjectInfo = () => {
         <AlertDescription>
           - Please note that this is a demo application.
           <br />
-          - "Disqualified" column is not given to LLM for obvious reasons.
+          - &quot;Disqualified&quot; column is not given to LLM for obvious reasons.
           <br />
-          - Returning data always defaults to default set of columns. If you want to see all columns, include in prompt "show all columns".
+          - Returning data always defaults to default set of columns. If you want to see all columns, include in prompt &quot;show all columns&quot;.
           <br />
           <div className="text-center">
             Made with ❤️ by <Link
